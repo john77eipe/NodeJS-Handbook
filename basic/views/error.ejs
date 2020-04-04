@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('partials/head'); %>
+</head>
+
+<body>
+    <%- include('partials/nav'); %>
+    <main role="main">
+        <%- include('partials/jumbotron'); %>
+        <div class="container">
+            <h5>Something bad occured!!</h5>
+            <% if ( message && error) { %>
+                    <%= message %>
+                    <br />
+                    <%= error %>
+            <% } %>
+            <hr/>
+        </div>
+        <!-- /container-->
+    </main><br>
+    <%- include('partials/footer'); %>
+</body>
+</html>

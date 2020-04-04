@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('partials/head'); %>
+</head>
+
+<body>
+    <%- include('partials/nav'); %>
+    <main role="main">
+        <%- include('partials/jumbotron'); %>
+        <div class="container">
+            <form method="post" action="contact/send">
+                <h1>Contact</h1>
+                <div class="form-group"><label>Name</label><input class="form-control" type="text" name="name" placeholder="Enter Name" /></div>
+                <div class="form-group"><label>Email</label><input class="form-control" type="email" name="email" placeholder="Enter Email" /></div>
+                <div class="form-group"><label>Message</label><textarea class="form-control" name="message" placeholder="Enter Message"></textarea></div><button class="btn btn-primary" type="submit">Submit</button></form>
+        </div>
+    </main><br>
+    <%- include('partials/footer'); %>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+<div class="alert alert-danger"></div>
+<!-- Main jumbotron for a primary marketing message or call to action-->
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="display-3"></h1>
+        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>
+        <h3>
+            <% if (typeof user == 'undefined') { %>
+                <p>Welcome! Please <a href="/users/login">log in</a>.</p>
+            <% } else { %>
+                <p>Hello, <%= user.username %>. View your <a href="/users/profile">profile</a>.</p>
+            <% } %>
+        </h3>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('partials/head'); %>
+</head>
+
+<body>
+    <%- include('partials/nav'); %>
+    <main role="main">
+        <%- include('partials/jumbotron'); %>
+        <div class="container">
+        <h5>Logged in user details</h5>
+        <hr/>
+        <p>
+            ID: <%= user.id %><br/> 
+            Username: <%= user.username %><br/>
+            Name: <%= user.fullname %><br/>
+            <% if (user.email) { %>
+            Email: <%= user.email %><br/>
+            <% } %>
+            </p>
+            <a href="/users/logout">Log out</a>
+        </div>
+        <!-- /container-->
+    </main><br>
+    <%- include('partials/footer'); %>
+</body>
+
+</html>
