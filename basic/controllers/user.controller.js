@@ -1,20 +1,20 @@
-var dao = require('../daos/user.dao');
-var {validationResult} = require('express-validator');
-var passport = require('passport');
+import dao from './daos/user.dao'
+import validationResult from 'express-validator';
+import passport from 'passport';
 
 var userController = {
     register: (req, res, next) => {
-        var fullname = req.body.fullname;
-        var email = req.body.email;
-        var username = req.body.username;
-        var password = req.body.password;
-
+        const fullname = req.body.fullname;
+        const email = req.body.email;
+        const username = req.body.username;
+        const password = req.body.password;
+        let profileimage = 'noimage.jpg';
+        
         if(req.file) {
             console.log('Uploading File....');
-            var profileimage = req.file.filename;
+            profileimage = req.file.filename;
         } else {
             console.log('No file Uploaded');
-            var profileimage = 'noimage.jpg';
         }
 
         const errors = validationResult(req);
@@ -55,8 +55,8 @@ var userController = {
         
     },
     login: function(req, res, next) {
-        var username = req.body.username;
-        var password = req.body.password;
+        const username = req.body.username;
+        const password = req.body.password;
 
         // Check Errors
         const errors = validationResult(req);
@@ -82,4 +82,4 @@ var userController = {
     }    
 }
 
-module.exports = userController;
+export default userController;

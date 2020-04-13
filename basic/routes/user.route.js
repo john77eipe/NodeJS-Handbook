@@ -1,9 +1,10 @@
-var express = require('express');
-var multer = require('multer');
-var upload = multer({dest: './uploads'});
-var {check} = require('express-validator');
-var userController = require('../controllers/user.controller');
-var router = express.Router();
+import * as express from 'express';
+import * as multer from 'multer';
+import * as check from 'express-validator';
+import { userController } from '../controllers/user.controller';
+
+const upload = multer({dest: './uploads'});
+const router = express.Router();
 
 router.get('/profile', function (req, res) {
     if (!req.isAuthenticated()) {
@@ -25,7 +26,7 @@ router.post('/register',
         check('password', 'Password field is required').not().isEmpty(),
         check('password').isLength({ min: 3 }).withMessage('must be at least 3 chars long'),
         check('password').matches(/\d/).withMessage('must contain a number'),
-        check('password2').custom((value, {req})=> { 
+        check('password2').custom((value, {req}) => { 
             //custom validator
             if(value!==req.body.password) {
                 throw new Error('Passwords doesn\'t match');
@@ -60,4 +61,4 @@ router.get('/logout',
         // https://medium.com/@caroline.e.okun/read-this-if-youre-using-passport-for-authentication-188d00968f1b
     });
 
-module.exports = router;
+export default router;

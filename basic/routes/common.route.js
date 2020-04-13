@@ -1,24 +1,24 @@
-var express = require('express');
-var commonController = require('../controllers/common.controller');
+import * as express from 'express';
+import { commonController } from '../controllers/common.controller';
 
-var router = express.Router();
+const router = express.Router();
 
-router.get('/', function(req, res){
+router.get('/', function(req, res) {
     res.render('home', {title:'Welcome',  user: req.user, flash: res.locals.sessionFlash });
 });
 
-router.get('/about', function(req, res){
+router.get('/about', function(req, res) {
     res.render('about', {title:'About'});
 });
 
-router.get('/contact', function(req, res){
+router.get('/contact', function(req, res) {
     res.render('contact', {title:'Contact'});
 });
 
-router.get('/error', function(req, res){
+router.get('/error', function(req, res) {
     res.render('error', {title:'Error'});
 });
 
 router.post('/contact/send', commonController.sendMail);
 
-module.exports = router;
+export default router;

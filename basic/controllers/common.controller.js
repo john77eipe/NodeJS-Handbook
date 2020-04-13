@@ -1,10 +1,10 @@
-var nodeMailer = require('nodemailer');
+import nodeMailer from 'nodemailer';
 
 var commonController = {
     sendMail: (req, res, next) => {
 
-        usermail = process.env['mail.user'];
-        userpass = process.env['mail.pass'];
+        const usermail = process.env['mail.user'];
+        const userpass = process.env['mail.pass'];
 
         if(! usermail) {
             console.log("mail.user is missing in env");
@@ -26,8 +26,14 @@ var commonController = {
             from: usermail,
             to: 'support@yopmail.com',
             subject: 'Website Submission',
-            text: 'You have a submission with the following details... Name: '+req.body.name+'Email: '+req.body.email+ 'Message: '+req.body.message,
-            html: '<p>You have a submission with the following details...</p><ul><li>Name: '+req.body.name+'</li><li>Email: '+req.body.email+'</li><li>Message: '+req.body.message+'</li></ul>'
+            text: `You have a submission with the following details... 
+            Name: ${req.body.name} Email: ${req.body.email} Message: ${req.body.message}`,
+            html: `<p>You have a submission with the following details...</p>
+                <ul>
+                    <li>Name: ${req.body.name} </li>
+                    <li>Email: ${req.body.email} </li>
+                    <li>Message: ${req.body.message} </li>
+                </ul>`
         };
     
         transporter.sendMail(mailOptions, function(error, info){
@@ -42,4 +48,4 @@ var commonController = {
     }    
 }
 
-module.exports = commonController;
+export default commonController;

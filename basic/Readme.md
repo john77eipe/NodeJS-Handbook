@@ -425,3 +425,111 @@ Following the tutorial, `res.locals.sessionFlash` acts as a the getter and `req.
 There are a couple of important distinctions between the 2 approaches illustrated above.
 - First, the custom middleware option exposes all of the properties of the flash object, not just the message. 
 - Second, the custom middleware does not include a mechanism for adding multiple messages of the same type to an array.
+
+### Upgrading to ES 6,7 and 8 updates
+
+1. change to ES6 practice of using const or let (not var)
+    var used in blocks will be hoisted and the outer scope
+    let provides block scope
+
+2. choosing correctly between { } imports - called object destructuring 
+	Note: https://stackoverflow.com/a/53998071/548634
+
+3. Aysnc and Await and Promise
+
+4. Backticks for template strings 
+
+    `${value +2} some line
+    line 2 str`
+
+5. Destructuring objects and Spread operator
+
+```javascript
+const { firstname, lastname} = jsonobject
+const { firstname: fn, lastname: ln } = jsonobject
+let [firstobj, secondobj, ...others] = jsonarray
+let array2 = [...array1] //creates a new array
+```
+
+6. Object literals
+
+```javascript
+fun(a ,b) {
+	return {a, b}
+}
+creates {'a': a, 'b':b}
+
+function addressMaker(adder){
+	const newAddress = {
+		city: adder.city,
+		state: adder.state,
+		country: 'US'
+	};
+}
+
+function addressMaker(adder){
+	const {city, state} = adder
+	const newAddress = {
+		city,
+		state,
+		country: 'US',
+		..others
+	};
+}
+```
+
+
+7. For of - loops
+
+```javascript
+let incomes = [100, 200, 300]
+let total = 0
+for (const income of incomes) {
+	total += income
+}
+```
+Works with any Iterable; best practice to use const so that it doesn't get modified accidently
+
+
+8. Rest operator
+
+```javascript
+To get the args out of function
+function(nums) {
+	console.log(arguments)//deprecated
+}
+
+function(...nums) {
+	nums is a array that can be accessed inside
+}
+```
+
+
+9. Arrow function
+
+replace callbacks with => : but this is not available
+```javascript
+let totals = nums.reduce(function(x, y) { return x+y;});
+let totals = nums.reduce((x, y) => { return x+y; });
+let totals = nums.reduce((x, y) => x+y);
+```
+
+
+10. Default parameter
+
+```javascript
+function add(numArray = []) {
+	let total =0;
+	numArray.forEach( (e) => totals=e)
+}
+```
+
+11. Includes
+to check if an array had a value we used to say numArray.indexOf(num) => -1 if not 
+`numArray.includes(num) -> returns true/false`
+
+12. Classes, static functions and get
+
+13. Trailing commas
+
+14. Sets

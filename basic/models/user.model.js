@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // User Schema - Mongoose schema defines the structure of the document, default values, validators, etc.
 const userSchema = new mongoose.Schema({
@@ -24,4 +24,4 @@ const userSchema = new mongoose.Schema({
 	}
 });
 
-module.exports = userSchema;
+export default userSchema;

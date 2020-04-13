@@ -1,21 +1,23 @@
-var express = require('express');
-var path = require('path');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
+import express from 'express';
+import path from 'path';
+import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session'
 
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-var logger = require('morgan');
-var dao = require('./daos/user.dao');
+import * as logger from 'morgan';
+import { dao } from './daos/user.dao'
 
-var config = require('./configs/mongoose.config');
+import config from './configs/mongoose.config';
 config.initDB();
 
-var uuid = require('uuid');
+import uuid from 'uuid';
 
-var passport = require('passport');
-var LocalStrategy  = require('passport-local').Strategy;
+import passport from 'passport';
+import { LocalStrategy } from 'passport-local';
+//var LocalStrategy  = require('passport-local').Strategy;
 
 
 // Configure the local strategy for use by Passport.
@@ -55,7 +57,7 @@ passport.deserializeUser(function(id, cb) {
 });
 
 
-var app = express();
+const app = express();
 
 // Specifying the location of template/view files and 
 // setting the view rendering engines
@@ -97,8 +99,8 @@ app.use(function(req, res, next){
 
 
 // Loading routes
-var routes = require('./routes/common.route');
-var users = require('./routes/user.route');
+import * as routes from './routes/common.route';
+import * as users from './routes/user.route';
 
 app.use('/', routes);
 app.use('/users', users);
@@ -138,6 +140,4 @@ if (app.get('env') === 'development') {
 // 	});
 // });
 
-app.listen(3000);
-
-console.log("Server is running on port 3000");
+export default app;
