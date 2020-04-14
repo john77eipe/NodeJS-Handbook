@@ -1,4 +1,4 @@
-var config = {
+export const dbconfig = {
     development: {
         //mongodb connection settings
         database: {
@@ -16,4 +16,3 @@ var config = {
         },
     }
 };
-export default config;
