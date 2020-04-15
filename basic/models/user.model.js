@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 // User Schema - Mongoose schema defines the structure of the document, default values, validators, etc.
-const userSchema = new mongoose.Schema({
+export const userSchema = new mongoose.Schema({
 	username: {
 		type: String,
 		index: true
@@ -23,5 +23,3 @@ const userSchema = new mongoose.Schema({
 		default: Date.now
 	}
 });
-
-export default userSchema;
