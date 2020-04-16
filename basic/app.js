@@ -8,12 +8,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import logger from 'morgan';
-import { userModel } from './daos/user.dao'
+import userModel from './daos/user.dao'
 
 import config from './configs/mongoose.config';
 config.initDB();
 
-import uuid from 'uuid';
+import {v4 as uuid_v4} from 'uuid';
 
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
@@ -76,7 +76,7 @@ app.use(session({
 	genid: (req) => {
 		console.log('Inside session middleware genid function')
 		console.log(`Request object sessionID from client: ${req.sessionID}`)
-        return req.sessionID || uuid.v4();
+        return req.sessionID || uuid_v4();
 	},
 	store: new session.MemoryStore,
 	secret: 'keyboard cat',
@@ -118,7 +118,6 @@ app.use(function (req, res, next) {
 if (app.get('env') === 'development') {
 	app.use(function (err, req, res, next) {
 		console.log(err);
-		console.log(req);
 		res.status(err.status || 500);
 		res.render('error', {
 			message: err.message,

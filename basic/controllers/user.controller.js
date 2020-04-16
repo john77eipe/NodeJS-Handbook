@@ -1,5 +1,5 @@
-import { userModel } from '../daos/user.dao'
-import validationResult from 'express-validator';
+import userModel from '../daos/user.dao'
+import { validationResult } from 'express-validator';
 import passport from 'passport';
 
 const userController = {

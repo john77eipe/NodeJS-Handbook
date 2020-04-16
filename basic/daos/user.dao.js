@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { userSchema } from '../models/user.model';
 
+//this file adds additional methods on the schema
+
 userSchema.methods = {
 
     create : function(callback){
@@ -15,5 +17,5 @@ userSchema.methods = {
 // Model is a wrapper on the Mongoose schema
 // If collection name is not specified, Mongoose automatically looks for the plural version of your model name 
 const userModel = mongoose.model('User', userSchema);
-export { userModel }
+export default userModel;
 //module.exports = mongoose.model('User', userSchema);
