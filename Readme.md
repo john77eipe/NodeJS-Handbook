@@ -2,7 +2,9 @@
 
 What follows is a step by step development experience of someone who started with nodejs and express framework. 
 
-Won't be going into detail of what something is but will be making notes on why something didn't work or why something is done the way it is.
+<u>Won't be going into detail of what something is but will be making notes on why something didn't work or why something is done the way it is.</u>
+
+After a set of notes or discussion, code is written, tested and committed. Links to specific code releases are added.
 
 
 
