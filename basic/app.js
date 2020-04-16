@@ -16,7 +16,7 @@ config.initDB();
 import uuid from 'uuid';
 
 import passport from 'passport';
-import { LocalStrategy } from 'passport-local';
+import { Strategy as LocalStrategy } from 'passport-local';
 
 
 // Configure the local strategy for use by Passport.
@@ -98,11 +98,11 @@ app.use(function(req, res, next){
 
 
 // Loading routes
-import * as routes from './routes/common.route';
-import * as users from './routes/user.route';
+import common_routes from './routes/common.route';
+import user_routes from './routes/user.route';
 
-app.use('/', routes);
-app.use('/users', users);
+app.use('/', common_routes);
+app.use('/users', user_routes);
 
 // catch incorrect endpoint requests (404) and forward to error handler
 app.use(function (req, res, next) {

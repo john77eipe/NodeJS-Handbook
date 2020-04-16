@@ -4,19 +4,23 @@
     "description": "",
     "main": "app.js",
     "babel": {
-        "presets": ["@babel/preset-env"]
+        "presets": [
+            "@babel/preset-env"
+        ]
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "server": "node ./dist-server/bin/www",
         "transpile": "babel ./ --ignore ./node_modules --out-dir dist-server",
-        "clean": "rimraf dist-server"
+        "clean": "rimraf dist-server",
+        "start": "babel-node ./bin/www"
     },
     "author": "John Eipe",
     "license": "ISC",
     "dependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.9.0",
+        "@babel/node": "^7.8.7",
         "@babel/preset-env": "^7.9.5",
         "body-parser": "1.19.0",
         "chalk": "^3.0.0",

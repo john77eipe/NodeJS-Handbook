@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
-import check from 'express-validator';
-import { userController } from '../controllers/user.controller';
+import { check } from 'express-validator';
+import userController from '../controllers/user.controller';
 
 const upload = multer({dest: './uploads'});
 const router = express.Router();
