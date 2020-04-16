@@ -656,9 +656,155 @@ function add(numArray = []) {
 11. Includes
 to check if an array had a value we used to say numArray.indexOf(num) => -1 if not 
 `numArray.includes(num) -> returns true/false`
-
 12. Classes, static functions and get
-
 13. Trailing commas
-
 14. Sets
+15. Modules 
+
+
+
+### Module system in Javascript (ES6+)
+
+#### What is a module?
+
+A module is just a file. One script is one module.
+
+`export` keyword labels variables and functions that should be accessible from outside the current module.
+`import` allows the import of functionality from other modules.
+
+Features:
+
+- Modules always use strict, by default.
+
+- Each module has its own top-level scope. In other words, top-level variables and functions from a module are not seen in other scripts.
+
+- Module code is evaluated only once the first time it is imported.
+
+  This helps in safely using it for initialization - configure modules on first import
+
+  ```javascript
+  // 📁 admin.js
+  export let admin = { };
+  
+  export function sayHi() {
+    alert(`Ready to serve, ${admin.name}!`);
+  }
+  
+  // 📁 init.js
+  import {admin} from './admin.js';
+  admin.name = "Pete";
+  
+  // 📁 other.js
+  import {admin, sayHi} from './admin.js';
+  alert(admin.name); // Pete
+  sayHi(); // Ready to serve, Pete!
+  ```
+
+  
+
+- The object `import.meta` contains the information about the current module; it depends on the current environment
+
+- In a module `this` is undefined
+
+  ```javascript
+  <script>
+    alert(this); // window
+  </script>
+  
+  <script type="module">
+    alert(this); // undefined
+  </script>
+  ```
+
+- Browser-specific features
+
+  - module scripts are always deferred; same effect as defer attribute for both external and inline scripts. That is, it is loaded in parallel with other resources. 
+
+  - As a side-effect, module scripts always “see” the fully loaded HTML-page, including HTML elements below them.
+
+    ```javascript
+    <script type="module">
+      alert(typeof button); // object: the script can 'see' the button below
+      // as modules are deferred, the script runs after the whole page is loaded
+    </script>
+    
+    Compare to regular script below:
+    
+    <script>
+      alert(typeof button); // Error: button is undefined, the script can't see elements below
+      // regular scripts run immediately, before the rest of the page is processed
+    </script>
+    
+    <button id="button">Button</button>
+    ```
+
+    Please note: the second script actually runs before the first! So we’ll see `undefined` first, and then `object`.
+
+  - async works on inline scripts
+
+    For non-module scripts, the `async` attribute only works on external scripts. Async scripts run immediately when ready, independently of other scripts or the HTML document.
+
+    For module scripts, it works on inline scripts as well.
+
+  - External scripts that have `type="module"` are different in two aspects:
+
+    1. External scripts with the same `src` run only once
+    2. External scripts that are fetched from another origin (e.g. another site) require [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers
+
+  - No bare modules allowed
+
+    In the browser, `import` must get either a relative or absolute URL. Modules without any path are called “bare” modules. Such modules are not allowed in `import`.
+
+    For instance, this `import` is invalid:
+
+    ```javascript
+    import {sayHi} from 'sayHi'; 
+    ```
+
+  - Old browsers do not understand `type="module"`.
+
+- Criteria for Export and Import
+
+  - Export can be placed in front of variable, function or class
+
+  - Export can be done as part of declaration or later separately - no difference
+
+  - Import *  - will import whatever is exposed in the module; think twice before you use it
+
+    - modern build tools bundle only necessary imports; removes unused stuff
+    - explicitly listing what to import gives shorter names: `sayHi()` instead of `say.sayHi()`
+    - gives better overview to the reader
+
+  - Import as - alias naming
+
+  - Export as - alias naming
+
+  - Good practice is to export a single functionality or entity (class or object) instead of a pack of functions
+
+  - Export default - says export only this from this module
+
+    | Named export              | Default export                    |
+    | ------------------------- | :-------------------------------- |
+    | `export class User {...}` | `export default class User {...}` |
+    | `import {User} from ...`  | `import User from ...`            |
+
+  - the confusing "default" name
+
+    ```javascript
+    export {sayHi as default}; //same as export default
+    ```
+
+- Module import()
+
+  The `import(module)` expression loads the module and returns a promise that resolves into a module object that contains all its exports. It can be called from any place in the code.
+
+  ```javascript
+  let modulePath = prompt("Which module to load?");
+  
+  import(modulePath)
+    .then(obj => <module object>)
+    .catch(err => <loading error, e.g. if no such module>)
+  ```
+
+  
+

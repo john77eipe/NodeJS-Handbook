@@ -1,6 +1,6 @@
 import nodeMailer from 'nodemailer';
 
-var commonController = {
+const commonController = {
     sendMail: (req, res, next) => {
 
         const usermail = process.env['mail.user'];

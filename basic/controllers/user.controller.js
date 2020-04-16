@@ -1,8 +1,8 @@
-import dao from './daos/user.dao'
+import { userModel } from './daos/user.dao'
 import validationResult from 'express-validator';
 import passport from 'passport';
 
-var userController = {
+const userController = {
     register: (req, res, next) => {
         const fullname = req.body.fullname;
         const email = req.body.email;
@@ -27,7 +27,7 @@ var userController = {
             console.log('No Errors');
         }
 
-        var newUser = new dao.User({
+        var newUser = new userModel.User({
             fullname: fullname,
             email: email,
             username: username,

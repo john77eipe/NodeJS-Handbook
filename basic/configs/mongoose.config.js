@@ -1,9 +1,9 @@
 //require mongoose module
-import { mongoose } from 'mongoose';
+import mongoose from 'mongoose';
 import { dbconfig } from './mongo.config';
 
 //require chalk module to give colors to console text
-import { chalk } from 'chalk';
+import chalk from 'chalk';
 
 //construct database URL from config file
 var env = process.env.NODE_ENV || 'development';

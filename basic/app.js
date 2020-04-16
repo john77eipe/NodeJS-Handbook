@@ -1,14 +1,14 @@
 import express from 'express';
 import path from 'path';
-import * as bodyParser from 'body-parser';
-import * as cookieParser from 'cookie-parser';
-import * as session from 'express-session'
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import session from 'express-session'
 
 import dotenv from 'dotenv';
 dotenv.config();
 
-import * as logger from 'morgan';
-import { dao } from './daos/user.dao'
+import logger from 'morgan';
+import { userModel } from './daos/user.dao'
 
 import config from './configs/mongoose.config';
 config.initDB();
@@ -17,7 +17,6 @@ import uuid from 'uuid';
 
 import passport from 'passport';
 import { LocalStrategy } from 'passport-local';
-//var LocalStrategy  = require('passport-local').Strategy;
 
 
 // Configure the local strategy for use by Passport.
@@ -27,7 +26,7 @@ passport.use('local', new LocalStrategy(
         passwordField: 'password'   
     },
     function verify(username, password, done) {
-		dao.User
+		userModel.User
             .findOne({
 				username: username
 			}, function(err, user) {

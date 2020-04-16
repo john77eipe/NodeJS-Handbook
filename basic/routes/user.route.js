@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as multer from 'multer';
-import * as check from 'express-validator';
+import express from 'express';
+import multer from 'multer';
+import check from 'express-validator';
 import { userController } from '../controllers/user.controller';
 
 const upload = multer({dest: './uploads'});
