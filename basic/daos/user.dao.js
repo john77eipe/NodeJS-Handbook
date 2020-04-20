@@ -16,6 +16,8 @@ userSchema.methods = {
 // User Model -  Mongoose model provides an interface to the database for creating, querying, updating, deleting records, etc.
 // Model is a wrapper on the Mongoose schema
 // If collection name is not specified, Mongoose automatically looks for the plural version of your model name 
-const userModel = mongoose.model('User', userSchema);
-export default userModel;
-//module.exports = mongoose.model('User', userSchema);
+// const userModel = mongoose.model('User', userSchema);
+// export default userModel;
+// export const userModel;
+export const userModel = mongoose.model('User', userSchema);
+// module.exports.userModel = mongoose.model('User', userSchema);

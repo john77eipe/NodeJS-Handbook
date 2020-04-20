@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import logger from 'morgan';
-import userModel from './daos/user.dao'
+import {userModel} from './daos/user.dao'
 
 import config from './configs/mongoose.config';
 config.initDB();
@@ -26,8 +26,7 @@ passport.use('local', new LocalStrategy(
         passwordField: 'password'   
     },
     function verify(username, password, done) {
-		userModel.User
-            .findOne({
+		userModel.findOne({
 				username: username
 			}, function(err, user) {
 				if (err) {
@@ -49,7 +48,7 @@ passport.serializeUser(function(user, cb) {
 });
 
 passport.deserializeUser(function(id, cb) {
-	dao.User.findById(id, function (err, user) {
+	userModel.findById(id, function (err, user) {
 	    if (err) { return cb(err); }
 	    cb(null, user);
 	});
