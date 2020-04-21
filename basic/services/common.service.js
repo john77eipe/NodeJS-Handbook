@@ -1,18 +1,7 @@
 
 export const commonService = {
-    sendMail: (contactDTO) => {
+    sendMail: (usermail, userpass, contactDTO) => {
 
-        const usermail = process.env['mail.user'];
-        const userpass = process.env['mail.pass'];
-
-        if(! usermail) {
-            console.log("mail.user is missing in env");
-            res.redirect('/');
-        } 
-        if(! userpass) {
-            console.log("mail.pass is missing in env");
-            res.redirect('/');
-        }
         var transporter = nodeMailer.createTransport({
             service: 'Gmail',
             auth: {
