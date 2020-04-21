@@ -3,11 +3,6 @@
     "version": "1.0.0",
     "description": "",
     "main": "app.js",
-    "babel": {
-        "presets": [
-            "@babel/preset-env"
-        ]
-    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "server": "node ./dist-server/bin/www",

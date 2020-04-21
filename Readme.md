@@ -708,7 +708,7 @@ Features:
 
 - In a module `this` is undefined
 
-  ```javascript
+  ```html
   <script>
     alert(this); // window
   </script>
@@ -724,7 +724,7 @@ Features:
 
   - As a side-effect, module scripts always “see” the fully loaded HTML-page, including HTML elements below them.
 
-    ```javascript
+    ```html
     <script type="module">
       alert(typeof button); // object: the script can 'see' the button below
       // as modules are deferred, the script runs after the whole page is loaded

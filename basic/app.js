@@ -8,10 +8,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import logger from 'morgan';
-import {userModel} from './daos/user.dao'
 
 import config from './configs/mongoose.config';
 config.initDB();
+import {userModel} from './daos/user.dao'
+import { userService } from './services/user.service';
 
 import {v4 as uuid_v4} from 'uuid';
 
@@ -26,22 +27,10 @@ passport.use('local', new LocalStrategy(
         passwordField: 'password'   
     },
     function verify(username, password, done) {
-		userModel.findOne({
-				username: username
-			}, function(err, user) {
-				if (err) {
-					return done(err);
-				}
-				if (!user) {
-					return done(null, false);
-				}
-				if (user.password != password) {
-					return done(null, false);
-				}
-				return done(null, user);
-			});
-    }
-));
+		const userDTO = {username, password};
+		return userService.login(userDTO, done);
+	})
+);
 // Configure Passport authenticated session persistence.
 passport.serializeUser(function(user, cb) {
     cb(null, user.id);
@@ -88,7 +77,7 @@ app.use(passport.session());
 
 
 // Custom flash middleware -- https://gist.github.com/brianmacarthur/a4e3e0093d368aa8e423
-app.use(function(req, res, next){
+app.use(function(req, res, next) {
     // if there's a flash message in the session request, make it available in the response, then delete it
     res.locals.sessionFlash = req.session.sessionFlash;
     delete req.session.sessionFlash;
@@ -105,7 +94,7 @@ app.use('/users', user_routes);
 
 // catch incorrect endpoint requests (404) and forward to error handler
 app.use(function (req, res, next) {
-	var err = new Error('Not Found');
+	const err = new Error('Not Found');
 	err.status = 404;
 	next(err);
 });

@@ -6,19 +6,19 @@ import { dbconfig } from './mongo.config';
 import chalk from 'chalk';
 
 //construct database URL from config file
-var env = process.env.NODE_ENV || 'development';
-var server = dbconfig[env]['database']['host'];
-var port = dbconfig[env]['database']['port'];
-var database = dbconfig[env]['database']['db'];
-var dbURL = `mongodb://${server}:${port}/${database}`;
+const env = process.env.NODE_ENV || 'development';
+const server = dbconfig[env]['database']['host'];
+const port = dbconfig[env]['database']['port'];
+const database = dbconfig[env]['database']['db'];
+const dbURL = `mongodb://${server}:${port}/${database}`;
 
-var connected = chalk.bold.cyan;
-var error = chalk.bold.yellow;
-var disconnected = chalk.bold.red;
-var termination = chalk.bold.magenta;
+const connected = chalk.bold.cyan;
+const error = chalk.bold.yellow;
+const disconnected = chalk.bold.red;
+const termination = chalk.bold.magenta;
 
 //export this function and imported by server.js
-var config = {
+const config = {
     initDB: function() {
 
         mongoose.connect(dbURL);

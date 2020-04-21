@@ -1,22 +1,21 @@
-import {userModel} from '../daos/user.dao'
 import { validationResult } from 'express-validator';
 import passport from 'passport';
+import { userService } from '../services/user.service';
 
 const userController = {
+
     register: (req, res, next) => {
-        const fullname = req.body.fullname;
-        const email = req.body.email;
-        const username = req.body.username;
-        const password = req.body.password;
-        let profileimage = 'noimage.jpg';
-        
+
+        const userDTO = req.body;
+        //image upload is not supported yet
         if(req.file) {
             console.log('Uploading File....');
-            profileimage = req.file.filename;
+            userDTO.profileimage = req.file.filename;
         } else {
+            userDTO.profileimage = 'noimage.jpg';
             console.log('No file Uploaded');
         }
-
+         
         const errors = validationResult(req);
         // Check Errors
         if (!errors.isEmpty()) {
@@ -26,37 +25,24 @@ const userController = {
         else {
             console.log('No Errors');
         }
+        
+        const result = userService.register(userDTO);
 
-        var newUser = new userModel({
-            fullname: fullname,
-            email: email,
-            username: username,
-            password: password,
-            profileimage: profileimage
-        });
-
-        newUser.create((err) => {
-            console.log(err);
-            if(err) {
-                req.session.sessionFlash = {
-                    type: 'error',
-                    message: 'You have been successfully logged in'
-                }
-                res.redirect('/error');
-            } else {
-                req.session.sessionFlash = {
-                    type: 'info',
-                    message: 'You have successfully registered!!!'
-                }
-                res.redirect('/');
+        if(result) {
+            req.session.sessionFlash = {
+                type: 'info',
+                message: 'You have successfully registered!!!'
             }
-        });
-        
-        
+            res.redirect('/');
+        } else {
+            req.session.sessionFlash = {
+                type: 'error',
+                message: 'Something went wrong!!!'
+            }
+            res.redirect('/error');
+        }
     },
-    login: function(req, res, next) {
-        const username = req.body.username;
-        const password = req.body.password;
+    login: (req, res, next) => {
 
         // Check Errors
         const errors = validationResult(req);

@@ -11,7 +11,7 @@
         <%- include('partials/jumbotron'); %>
         <div class="container">
             <h5>Something bad occured!!</h5>
-            <% if ( message && error) { %>
+            <% if ( (typeof message != 'undefined') && (typeof error != 'undefined') ) { %>
                     <%= message %>
                     <br />
                     <%= error %>
