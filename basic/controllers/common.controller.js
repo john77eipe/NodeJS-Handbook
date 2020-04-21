@@ -8,13 +8,21 @@ const commonController = {
 
         if(! usermail) {
             console.log("mail.user is missing in env");
-            res.redirect('/');
+            return res.redirect('/');
         } 
         if(! userpass) {
             console.log("mail.pass is missing in env");
-            res.redirect('/');
+            return res.redirect('/');
         }
-        commonService.sendMail(contactDTO);
+        commonService.sendMail(usermail, userpass, contactDTO, function(error, info){
+            if(error) {
+                console.log(error);
+                return res.redirect('/');
+            } else {
+                console.log('Message Sent: '+info.res);
+                return res.redirect('/');
+            }
+        });
     }    
 }
 

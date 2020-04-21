@@ -1,6 +1,7 @@
+import nodeMailer from 'nodemailer';
 
 export const commonService = {
-    sendMail: (usermail, userpass, contactDTO) => {
+    sendMail: (usermail, userpass, contactDTO, callback) => {
 
         var transporter = nodeMailer.createTransport({
             service: 'Gmail',
@@ -24,14 +25,6 @@ export const commonService = {
                 </ul>`
         };
     
-        transporter.sendMail(mailOptions, function(error, info){
-            if(error) {
-                console.log(error);
-                res.redirect('/');
-            } else {
-                console.log('Message Sent: '+info.res);
-                res.redirect('/');
-            }
-        });
+        transporter.sendMail(mailOptions, callback);
     }    
 };
