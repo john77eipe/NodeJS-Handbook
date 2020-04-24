@@ -4,7 +4,7 @@ import { userService } from '../services/user.service';
 
 const userController = {
 
-    register: (req, res, next) => {
+    register: async (req, res, next) => {
 
         const userDTO = req.body;
         //image upload is not supported yet
@@ -26,9 +26,11 @@ const userController = {
             console.log('No Errors');
         }
         
-        const result = userService.register(userDTO);
+        const result = await userService.register(userDTO);
 
-        if(result) {
+        console.log(`save result isSuccess: ${result.isSuccess}`);
+        console.log(`save result data: ${result.data}`);
+        if(result.isSuccess) {
             req.session.sessionFlash = {
                 type: 'info',
                 message: 'You have successfully registered!!!'

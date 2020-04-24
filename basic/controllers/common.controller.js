@@ -1,7 +1,7 @@
 import { commonService } from '../services/common.service'
 
 const commonController = {
-    sendMail: (req, res, next) => {
+    sendMail: async (req, res, next) => {
         const contactDTO = req.body;
         const usermail = process.env['mail.user'];
         const userpass = process.env['mail.pass'];
@@ -14,7 +14,7 @@ const commonController = {
             console.log("mail.pass is missing in env");
             return res.redirect('/');
         }
-        commonService.sendMail(usermail, userpass, contactDTO, function(error, info){
+        await commonService.sendMail(usermail, userpass, contactDTO, function(error, info){
             if(error) {
                 console.log(error);
                 return res.redirect('/');

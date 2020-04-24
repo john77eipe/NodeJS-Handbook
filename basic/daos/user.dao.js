@@ -5,12 +5,24 @@ import { userSchema } from '../models/user.model';
 
 userSchema.methods = {
 
-    create : function(callback){
-        return this.save(callback);
+    create: function () {
+        return this.save()
+            .then(save_value => {
+                return {
+                    isSuccess: true,
+                    data: save_value
+                };
+            })
+            .catch(err => {
+                return {
+                    isSuccess: false,
+                    data: err
+                };
+            });
     },
 
-    update : function(query, updateData, callback){
-        return this.findOneAndUpdate(query,{$set : updateData},{new : true}, callback)
+    update: function (query, updateData, callback) {
+        this.findOneAndUpdate(query, { $set: updateData }, { new: true }, callback)
     }
 }
 // User Model -  Mongoose model provides an interface to the database for creating, querying, updating, deleting records, etc.

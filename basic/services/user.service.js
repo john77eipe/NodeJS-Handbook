@@ -1,7 +1,7 @@
 import { userModel } from '../daos/user.dao'
 
 export const userService = {
-    register: (userDTO) => {
+    register: async (userDTO) => {
         var newUser = new userModel({
             fullname: userDTO.fullname,
             email: userDTO.email,
@@ -11,30 +11,34 @@ export const userService = {
         });
 
 
-        newUser.create((err) => {
-            console.log(err);
-            if(err) {
-                return false;
-            } else {
-                return true;
-            }
-        });      
+        const result = await newUser.create();
+        return result;
     },
 
-    login: (userDTO, done) => {
+    login: async (userDTO, cb) => {
         userModel.findOne({
             username: userDTO.username
         }, function(err, user) {
             if (err) {
-                return done(err);
+                return cb(err);
             }
             if (!user) {
-                return done(null, false);
+                return cb(null, false);
             }
             if (user.password != userDTO.password) {
-                return done(null, false);
+                return cb(null, false);
             }
-            return done(null, user);
+            return cb(null, user);
         });
-    }    
+    },
+    
+    findById: async (id, cb) => {
+        userModel.findById(
+            id, 
+            function (err, user) {
+                if (err) { return cb(err); }
+                cb(null, user);
+            }
+        );
+    }
 };

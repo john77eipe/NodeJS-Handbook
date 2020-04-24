@@ -1,7 +1,7 @@
 import nodeMailer from 'nodemailer';
 
 export const commonService = {
-    sendMail: (usermail, userpass, contactDTO, callback) => {
+    sendMail: (usermail, userpass, contactDTO) => {
 
         var transporter = nodeMailer.createTransport({
             service: 'Gmail',
@@ -24,7 +24,21 @@ export const commonService = {
                     <li>Message: ${contactDTO.message} </li>
                 </ul>`
         };
-    
-        transporter.sendMail(mailOptions, callback);
+        return new Promise((resolve, reject) => {
+            transporter.sendMail(
+                mailOptions, 
+                (err, info) => {
+                    if(info) {
+                        console.log(info.envelope);
+                        console.log(info.messageId);
+                        resolve(true);
+                    } 
+                    if(err) {
+                        reject(false);
+                    }
+                }
+            );
+        });  
+
     }    
 };

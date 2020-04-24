@@ -37,10 +37,7 @@ passport.serializeUser(function(user, cb) {
 });
 
 passport.deserializeUser(function(id, cb) {
-	userModel.findById(id, function (err, user) {
-	    if (err) { return cb(err); }
-	    cb(null, user);
-	});
+	return userService.findById(id, cb);
 });
 
 
@@ -94,6 +91,11 @@ app.use('/users', user_routes);
 
 // catch incorrect endpoint requests (404) and forward to error handler
 app.use(function (req, res, next) {
+	console.err("----------------------------");
+	console.err(req.url);
+	console.err(req.method);
+	console.err(req.body);
+	console.err("----------------------------");
 	const err = new Error('Not Found');
 	err.status = 404;
 	next(err);
