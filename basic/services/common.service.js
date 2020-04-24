@@ -13,7 +13,7 @@ export const commonService = {
     
         var mailOptions = {
             from: usermail,
-            to: 'support@yopmail.com',
+            to: 'eipe@yopmail.com',
             subject: 'Website Submission',
             text: `You have a submission with the following details... 
             Name: ${contactDTO.name} Email: ${contactDTO.email} Message: ${contactDTO.message}`,
@@ -31,10 +31,12 @@ export const commonService = {
                     if(info) {
                         console.log(info.envelope);
                         console.log(info.messageId);
-                        resolve(true);
+                        resolve();
                     } 
                     if(err) {
-                        reject(false);
+                        console.err("Email failed");
+                        console.err(err);
+                        reject();
                     }
                 }
             );

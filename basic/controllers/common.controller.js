@@ -1,28 +1,58 @@
 import { commonService } from '../services/common.service'
 
 const commonController = {
-    sendMail: async (req, res, next) => {
-        const contactDTO = req.body;
-        const usermail = process.env['mail.user'];
-        const userpass = process.env['mail.pass'];
+    sendMail: (req, res, next) => {
+        try {
+            const contactDTO = req.body;
+            const usermail = process.env['mail.user'];
+            const userpass = process.env['mail.pass'];
 
-        if(! usermail) {
-            console.log("mail.user is missing in env");
-            return res.redirect('/');
-        } 
-        if(! userpass) {
-            console.log("mail.pass is missing in env");
-            return res.redirect('/');
-        }
-        await commonService.sendMail(usermail, userpass, contactDTO, function(error, info){
-            if(error) {
-                console.log(error);
+            //environment config check
+            if(! usermail) {
+                console.err("mail.user is missing in env");
                 return res.redirect('/');
-            } else {
-                console.log('Message Sent: '+info.res);
+            } 
+            if(! userpass) {
+                console.err("mail.pass is missing in env");
                 return res.redirect('/');
             }
-        });
+
+            //post data check
+            if(contactDTO) {
+                let msg = [];
+                if(! contactDTO.name) {
+                    msg.push('name ');
+                }
+                if(! contactDTO.email) {
+                    msg.push('email ');
+                }
+                if(! contactDTO.message) {
+                    msg.push('message ');
+                }
+                if(msg.length>0) {
+                    req.session.sessionFlash = {
+                        type: 'info',
+                        message: `missing the following data: ${msg}`
+                    }
+                    return res.redirect('/');
+                }
+            } 
+
+            commonService.sendMail(usermail, userpass, contactDTO);
+            
+            req.session.sessionFlash = {
+                type: 'info',
+                message: 'Mail has been sent (hopefully)!!!'
+            }
+            res.redirect('/');
+        } catch (err) {
+            console.err(err);
+            req.session.sessionFlash = {
+                type: 'error',
+                message: 'Something went wrong!!!'
+            }
+            res.redirect('/');
+        }
     }    
 }
 
