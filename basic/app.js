@@ -32,11 +32,14 @@ passport.use('local', new LocalStrategy(
 );
 // Configure Passport authenticated session persistence.
 passport.serializeUser(function(user, cb) {
-    cb(null, user.id);
+	var sessionUser = { _id: user.id, username: user.username, email: user.email }
+  	cb(null, sessionUser);
 });
 
-passport.deserializeUser(function(id, cb) {
-	return userService.findById(id, cb);
+passport.deserializeUser(function(sessionUser, cb) {
+	// The sessionUser object is different from the user mongoose collection
+	// it's actually req.session.passport.user and comes from the session collection
+	cb(null, sessionUser);
 });
 
 
