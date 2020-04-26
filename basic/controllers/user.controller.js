@@ -25,8 +25,17 @@ const userController = {
         else {
             console.log('No Errors');
         }
-        
-        const result = await userService.register(userDTO);
+
+        let result = await userService.findByUsernameOrEmail(userDTO.username, userDTO.email);
+
+        if(! result.isSuccess) {
+            req.session.sessionFlash = {
+                type: 'error',
+                message: 'Username/Email already exists!!'
+            }
+            return res.redirect('/');
+        }
+        result = await userService.register(userDTO);
 
         console.log(`save result isSuccess: ${result.isSuccess}`);
         console.log(`save result data: ${result.data}`);

@@ -27,6 +27,27 @@ userSchema.methods = {
         this.findOneAndUpdate(query, { $set: updateData }, { new: true }, callback)
     }
 }
+
+userSchema.statics = {
+
+    findByUsernameOrEmail : function(username, email) {
+        return this.find({
+            $or: [ { username: username }, { email: email} ] 
+        }).then( (content) => {
+            return {
+                isSuccess: false,
+                data: content
+            };
+        })
+        .catch(err => {
+            console.log(err);
+            return {
+                isSuccess: true,
+                data: err
+            };
+        });
+    }    
+}    
 // User Model -  Mongoose model provides an interface to the database for creating, querying, updating, deleting records, etc.
 // Model is a wrapper on the Mongoose schema
 // If collection name is not specified, Mongoose automatically looks for the plural version of your model name 

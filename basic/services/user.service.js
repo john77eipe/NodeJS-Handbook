@@ -32,13 +32,8 @@ export const userService = {
         });
     },
     
-    findById: (id, cb) => {
-        userModel.findById(
-            id, 
-            function (err, user) {
-                if (err) { return cb(err); }
-                cb(null, user);
-            }
-        );
+    findByUsernameOrEmail: async (username, email, cb) => {
+        const result = await userModel.findByUsernameOrEmail(username, email);
+        return result;
     }
 };
