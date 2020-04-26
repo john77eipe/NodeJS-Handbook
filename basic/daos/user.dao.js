@@ -6,6 +6,8 @@ import { userSchema } from '../models/user.model';
 userSchema.methods = {
 
     create: function () {
+        //this create method is not needed; 
+        //only added to show that you can wrap the actual model calls
         return this.save()
             .then(save_value => {
                 return {

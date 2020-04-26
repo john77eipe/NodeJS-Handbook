@@ -15,7 +15,7 @@ export const userService = {
         return result;
     },
 
-    login: async (userDTO, cb) => {
+    login: (userDTO, cb) => {
         userModel.findOne({
             username: userDTO.username
         }, function(err, user) {
@@ -32,7 +32,7 @@ export const userService = {
         });
     },
     
-    findById: async (id, cb) => {
+    findById: (id, cb) => {
         userModel.findById(
             id, 
             function (err, user) {

@@ -11,7 +11,6 @@ import logger from 'morgan';
 
 import config from './configs/mongoose.config';
 config.initDB();
-import {userModel} from './daos/user.dao'
 import { userService } from './services/user.service';
 
 import {v4 as uuid_v4} from 'uuid';

@@ -810,3 +810,604 @@ Features:
 
   
 
+### Promises
+
+Let's look at how and why promises came into the picture.
+
+Consider this piece of code
+
+```javascript
+// a function to emulate synch waiting
+function wait(ms) {
+    var start = Date.now(), now = start;
+    while (now - start < ms) {
+      now = Date.now();
+    }
+}
+//library code - starts
+const checkIfUserIdExists = (id) => {
+    console.log('Checking Auth...start');
+    //hitting ldap service
+    result = null;
+    if(id)
+        result = true;
+    else
+        result = false;
+    wait(1000);
+    console.log('Checking Auth...end');
+    return result;
+}
+
+const fetchUserDetails = (id) => {
+    //hitting remote database
+    console.log('Fetching User...start');
+    result =  null;
+    if(id)
+        result = { name: "John" };
+    else
+        result = null;
+    console.log('Fetching User...end');
+    wait(500);
+    return result;
+}
+//library code - ends
+
+
+console.log("before");
+
+user = null;
+id = 1;
+auth = checkIfUserIdExists(id);
+if(auth) {
+    user = fetchUserDetails(id);
+}
+console.log(`Fetched data: ${user.name}`);
+
+console.log("after");
+
+// before
+// Checking Auth...start
+// Checking Auth...end
+// Fetching User...start
+// Fetching User...end
+// Fetched data: John
+// after
+```
+
+
+
+The above code was synchronous and it's dangerous because of the nature of how javascript works.
+
+JavaScript program is single threaded and all code is executed in a sequence, not in parallel. In JavaScript this is handled by using what is called an *“asynchronous non-blocking I/O model”*. 
+
+What that means is that while the execution of JavaScript is blocking, I/O operations are not. I/O operations are handled in parallel by native threads. 
+
+Meaning no libraries (both out of the box and third-party) would write code that does something costly synchronously.
+
+Essentially it would be something like this -
+
+```javascript
+/library code - starts
+const checkIfUserIdExists = (id) => {
+    console.log('Checking Auth...start');
+    //hitting ldap service
+    result = null;
+    if(id)
+        result = true;
+    else
+        result = false;
+    
+    console.log('Checking Auth...end');
+    setTimeout(() => {
+        console.log('Checking Auth...really end');
+        return result;
+    }, 1000);
+   
+}
+
+const fetchUserDetails = (id) => {
+    //hitting remote database
+    console.log('Fetching User...start');
+    result =  null;
+    if(id)
+        result = { name: "John" };
+    else
+        result = null;
+    console.log('Fetching User...end');
+    setTimeout(() => {
+        console.log('Fetching User...really end');
+        return result;
+    }, 500);
+}
+//library code - ends
+
+//user code
+console.log("before");
+
+user = null;
+id = 1;
+auth = checkIfUserIdExists(id);
+if(auth) {
+    user = fetchUserDetails(id);
+}
+console.log(`Fetched data: ${user.name}`); //TypeError: Cannot read property 'name' of null
+
+console.log("after");
+
+// before
+// Checking Auth...start
+// Checking Auth...end
+// TypeError: Cannot read property 'name' of null
+```
+
+But now we cannot access the results of what is asynchronosly run by the library functions. The only way is using callbacks.
+
+```javascript
+console.log("before");
+
+user = null;
+id = 1;
+checkIfUserIdExists(id, (auth) => {
+    if (auth) {
+        fetchUserDetails(id, (user) => {
+            console.log(`Fetched data: ${user.name}`);
+            return user;
+        });
+        //console.log(`Fetched data: ${user.name}`);
+    }
+});
+//console.log(`Fetched data: ${user.name}`);
+console.log("after");
+
+// before
+// Checking Auth...start
+// Checking Auth...end
+// after
+// Checking Auth...really end
+// Fetching User...start
+// Fetching User...end
+// Fetching User...really end
+// Fetched data: John
+```
+
+
+
+This would lead to *callback hell* as it creates some most confusing and un-readable code.
+
+Enter **Promises**.
+
+> A Promise is an object that is used as a placeholder for the eventual results of a deferred (and possibly asynchronous) computation.
+
+This sounds exactly like callbacks, but the important differences are in the usage of Promises. Instead of providing a callback, a promise has its own methods which you call to tell the promise what will happen when it is successful or when it fails - making the code look synchronous.
+
+And what happens within a promise can be synchronous or asynchronous - which means the code that runs within the promise can be natively asynchronous (like setTimeout or fs.readFile) or may be not (like the ones you write or natively provided ones like fs.readFileSync).
+
+The constructor syntax for a promise object is:
+
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  // executor (the producing code, "singer")
+});
+```
+The function passed to new Promise is called the executor. 
+
+When new Promise is created, the executor runs automatically. It contains the producing code which should eventually produce the result.
+Its arguments resolve and reject are callbacks provided by JavaScript itself. Our code is only inside the executor.
+
+When the executor obtains the result, be it soon or late, doesn’t matter, it should call one of these callbacks:
+
+- resolve(value) — if the job finished successfully, with result value.
+- reject(error) — if an error occurred, error is the error object.
+
+The promise object returned by the new Promise constructor has these internal properties:
+
+- state — initially "pending", then changes to either "fulfilled" when resolve is called or "rejected" when reject is called.	
+  - **Fulfilled:** `onFulfilled()` will be called (e.g., `resolve()` was called)
+  - **Rejected:** `onRejected()` will be called (e.g., `reject()` was called)
+  - **Pending:** not yet fulfilled or rejected
+- result — initially undefined, then changes to value when resolve(value) called or error when reject(error) is called.
+  So the executor eventually moves promise to one of these states:
+
+**Promises are eager**, meaning that a promise will start doing whatever task you give it as soon as the promise constructor is invoked.
+
+#### Short history about Promises
+
+Have a look [here](https://medium.com/javascript-scene/master-the-javascript-interview-what-is-a-promise-27fc71e77261)
+
+#### Making Promises
+
+We create a promise when a certain task’s completion time is uncertain or too long. Promises are all about making this type of asynchrony easy and effortless. Let’s get to the basics.
+
+A new promise is created by the using the **Promise** constructor. Like this —
+
+```javascript
+const myPromise = new Promise((resolve, reject) => {
+    if (Math.random() * 100 <= 90) {
+        resolve('Hello, Promises!');
+    }
+    reject(new Error('In 10% of the cases, I fail. Miserably.'));
+});
+```
+
+
+
+Observe that the constructor accepts a function with two parameters.
+
+The `resolve` and `reject` are functions themselves and are used to send back values to the promise object. When the computation is successful or the future value is ready, we send the value back using the `resolve` function. 
+
+If the computation fails or encounters an error, we signal that by passing the error object in the `reject` function.  `reject` accepts any value. However, it is recommended to pass an `Error` object since it helps in debugging by viewing the stacktrace.
+
+In the above example, `Math.random()` is used to generate a random number. In 90% of the cases, the promise will be resolved (assuming equal probability distribution). It will be rejected in the rest of the cases.
+
+
+
+####Using Promises
+
+In the above example, we created a promise and stored it in `myPromise`. **How can we access the the value passed by the** `resolve` **or** `reject` **function?**All `Promise` instances have a `.then()` method on them.
+
+```javascript
+const myPromise = new Promise((resolve, reject) => {
+    if (Math.random() * 100 < 90) {
+        console.log('resolving the promise ...');
+        resolve('Hello, Promises!');
+    }
+    reject(new Error('In 10% of the cases, I fail. Miserably.'));
+});
+
+// Two functions 
+const onResolved = (resolvedValue) => console.log(resolvedValue);
+const onRejected = (error) => console.log(error);
+
+myPromise.then(onResolved, onRejected);
+
+// Same as above, written concisely
+myPromise.then((resolvedValue) => {
+    console.log(resolvedValue);
+}, (error) => {
+    console.log(error);
+});
+
+// Output (in 90% of the cases)
+
+// resolving the promise ...
+// Hello, Promises!
+// Hello, Promises!
+```
+
+#### Important Promise Rules
+
+A standard for promises was defined by the [Promises/A+ specification](https://promisesaplus.com/implementations) community. There are many implementations which conform to the standard, including the JavaScript standard ECMAScript promises.
+
+Promises following the spec must follow a specific set of rules:
+
+- A promise or “thenable” is an object that supplies a standard-compliant `.then()` method.
+- A pending promise may transition into a fulfilled or rejected state.
+- A fulfilled or rejected promise is settled, and must not transition into any other state.
+- Once a promise is settled, it must have a value (which may be `undefined`). That value must not change.
+
+Change in this context refers to identity (`===`) comparison. An object may be used as the fulfilled value, and object properties may mutate.
+
+Every promise must supply a `.then()` method with the following signature:
+
+```
+promise.then(
+  onFulfilled?: Function,
+  onRejected?: Function
+) => Promise
+```
+
+The `.then()` method must comply with these rules:
+
+- Both `onFulfilled()` and `onRejected()` are optional.
+- If the arguments supplied are not functions, they must be ignored.
+- `onFulfilled()` will be called after the promise is fulfilled, with the promise’s value as the first argument.
+- `onRejected()` will be called after the promise is rejected, with the reason for rejection as the first argument. The reason may be any valid JavaScript value, but because rejections are essentially synonymous with exceptions, I recommend using Error objects.
+- Neither `onFulfilled()` nor `onRejected()` may be called more than once.
+- `.then()` may be called many times on the same promise. In other words, a promise can be used to aggregate callbacks.
+- `.then()` must return a new promise, `promise2`.
+- If `onFulfilled()` or `onRejected()` return a value `x`, and `x` is a promise, `promise2` will lock in with (assume the same state and value as) `x`. Otherwise, `promise2` will be fulfilled with the value of `x`.
+- If either `onFulfilled` or `onRejected` throws an exception `e`, `promise2` must be rejected with `e` as the reason.
+- If `onFulfilled` is not a function and `promise1` is fulfilled, `promise2` must be fulfilled with the same value as `promise1`.
+- If `onRejected` is not a function and `promise1` is rejected, `promise2` must be rejected with the same reason as `promise1`.
+
+#### Catching Promises
+
+```javascript
+const myProimse = new Promise((resolve, reject) => {
+  if (Math.random() * 100 < 90) {
+    reject(new Error('The promise was rejected by using reject function.'));
+  }
+  throw new Error('The promise was rejected by throwing an error');
+});
+
+myProimse.then(
+  () => console.log('resolved'), 
+  (error) => console.log(error.message)
+);
+
+// Output (in 90% of cases)
+
+// The promise was rejected by using reject function
+```
+
+Since error handling is a necessity for robust programs, a shortcut is given for such a case. Instead of writing `.then(null, () => {...})` when we want to handle an error, we can use `.catch(onRejected)` which accepts one callback: `onRejected`.
+
+#### Chaining Promises
+
+`.then()` and .`catch()` **methods always return a promise**. So you can chain multiple `.then` calls together.
+
+```javascript
+const delay = (ms) => new Promise(
+  (resolve) => setTimeout(resolve, ms)
+);
+
+delay(2000)
+  .then(() => {
+    console.log('Resolved after 2 seconds')
+    return delay(1500);
+  })
+  .then(() => {
+    console.log('Resolved after 1.5 seconds');
+    return delay(3000);
+  }).then(() => {
+    console.log('Resolved after 3 seconds');
+    throw new Error();
+  }).catch(() => {
+    console.log('Caught an error.');
+  }).then(() => {
+    console.log('Done.');
+  });
+
+// Resolved after 2 seconds
+// Resolved after 1.5 seconds
+// Resolved after 3 seconds
+// Caught an error.
+// Done.
+```
+
+It is recommended to use `.catch` and not `.then` with both `onResolved` and `onRejected` parameters. Here’s a case explaining why —
+
+```javascript
+const promiseThatResolves = () => new Promise((resolve, reject) => {
+  resolve();
+});
+
+// Leads to UnhandledPromiseRejection
+promiseThatResolves().then(
+  () => { throw new Error },
+  (err) => console.log(err),
+);
+
+// Proper error handling
+promiseThatResolves()
+  .then(() => {
+    throw new Error();
+  })
+  .catch(err => console.log(err));
+```
+
+When you have a `.then` with two callbacks, `onResolved` and `onRejected`, you can only handle errors and rejections of the ***executor\*** function. Suppose that the handler in `.then` also throws an error. It won’t lead to the execution of `onRejected` callback.
+
+But if you have a `.catch` a level below the `.then`, then the `.catch` **catches errors of executor function and the errors of** `.then` handler too.
+
+
+
+Thanks to the articles: 
+
+https://codeburst.io/a-simple-guide-to-es6-promises-d71bacd2e13a
+
+https://medium.com/javascript-scene/master-the-javascript-interview-what-is-a-promise-27fc71e77261
+
+The above article also explains why cancelling is not a good idea and how to do it.
+
+The native `Promise` object has some extra stuff you might be interested in:
+
+- `Promise.reject()` returns a rejected promise.
+- `Promise.resolve()` returns a resolved promise.
+- `Promise.race()` takes an array (or any iterable) and returns a promise that resolves with the value of the first resolved promise in the iterable, or rejects with the reason of the first promise that rejects.
+- `Promise.all()` takes an array (or any iterable) and returns a promise that resolves when *all of the promises* in the iterable argument have resolved, or rejects with the reason of the first passed promise that rejects.
+
+Let's go back to our original example written using promises.
+
+```javascript
+
+//library code - starts
+const checkIfUserIdExists = (id) => {
+    console.log('Checking Auth...start');
+    //hitting ldap service
+    result = null;
+    if(id)
+        result = true;
+    else
+        result = false;
+    
+    console.log('Checking Auth...end');
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            console.log('Checking Auth...really end');
+            resolve(result);
+        }, 1000);
+    });
+}
+
+const fetchUserDetails = (id) => {
+    //hitting remote database
+    console.log('Fetching User...start');
+    result =  null;
+    if(id)
+        result = { name: "John" };
+    else
+        result = null;
+    console.log('Fetching User...end');
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            console.log('Fetching User...really end');
+            resolve(result);
+        }, 500);
+    });
+}
+//library code - ends
+
+//user code
+console.log("before");
+
+user = null;
+id = 1;
+fn = async () => {
+    const isAuth = await checkIfUserIdExists(id)
+    let user = null;
+    if (isAuth) {
+        user = await fetchUserDetails(id)
+    }
+    console.log(`Fetched data: ${user.name}`);
+};
+fn();
+
+console.log("after");
+```
+
+Using the then syntax
+
+```javascript
+console.log("before");
+
+user = null;
+id = 1;
+fn = () => {
+    checkIfUserIdExists(id).then( (isAuth) => {
+        if (isAuth) {
+            fetchUserDetails(id).then( (user) => {
+                console.log(`Fetched data: ${user.name}`);
+            });
+        }
+    });
+};
+fn();
+
+console.log("after");
+
+// before
+// Checking Auth...start
+// Checking Auth...end
+// after
+// Checking Auth...really end
+// Fetching User...start
+// Fetching User...end
+// Fetching User...really end
+// Fetched data: John
+```
+
+Using the new async - await syntax
+
+```javascript
+console.log("before");
+
+user = null;
+id = 1;
+fn = async () => {
+    const isAuth = await checkIfUserIdExists(id)
+    let user = null;
+    if (isAuth) {
+        user = await fetchUserDetails(id)
+    }
+    console.log(`Fetched data: ${user.name}`);
+};
+fn();
+
+console.log("after");
+
+//expect the same output
+```
+
+Now remember the definition of Promise - and the word *possibily asynchronous*
+
+```javascript
+// a function to emulate synch waiting
+function wait(ms) {
+    var start = Date.now(), now = start;
+    while (now - start < ms) {
+      now = Date.now();
+    }
+}
+
+//library code - starts
+const checkIfUserIdExists = (id) => {
+    console.log('Checking Auth...start');
+    //hitting ldap service
+    result = null;
+    if(id)
+        result = true;
+    else
+        result = false;
+    
+    console.log('Checking Auth...end');
+    return new Promise((resolve, reject) => {
+        wait(1000); //synchronous wait
+        console.log('Checking Auth...really end');
+        resolve(result);
+    });
+}
+
+const fetchUserDetails = (id) => {
+    //hitting remote database
+    console.log('Fetching User...start');
+    result =  null;
+    if(id)
+        result = { name: "John" };
+    else
+        result = null;
+    console.log('Fetching User...end');
+    return new Promise((resolve, reject) => {
+        wait(500);
+        console.log('Fetching User...really end');
+        resolve(result);
+    });
+}
+//library code - ends
+
+// user code
+console.log("before");
+
+user = null;
+id = 1;
+fn = async () => {
+    const isAuth = await checkIfUserIdExists(id)
+    let user = null;
+    if (isAuth) {
+        user = await fetchUserDetails(id)
+    }
+    console.log(`Fetched data: ${user.name}`);
+};
+fn();
+console.log("after");
+
+//we can expect the same output and no change to user code
+```
+
+
+
+## Release 0.0.8
+
+Code: https://github.com/john77eipe/NodeJSHandbook/releases/tag/Release_0.0.8
+
+Scope:
+
+- Almost all the above ES6+ updates
+
+- Service layer introduction
+
+  - Deciding  which service calls should be async 
+
+  - If user code or library code is doing something timetaking/heavy it should be async and encapsulated in a promise
+
+    eg: Send email code
+
+  - If the library code returns a Promise then all is well and use async - await or then clauses 
+
+    eg: Mongoose save method
+
+    
+
+  
+
+  
