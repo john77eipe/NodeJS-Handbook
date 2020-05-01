@@ -34,8 +34,8 @@ export const commonService = {
                         resolve();
                     } 
                     if(err) {
-                        console.err("Email failed");
-                        console.err(err);
+                        console.error("Email failed");
+                        console.error(err);
                         reject();
                     }
                 }

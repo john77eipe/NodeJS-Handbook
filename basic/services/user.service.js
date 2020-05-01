@@ -1,12 +1,15 @@
 import { userModel } from '../daos/user.dao'
+import { utils } from '../utils/utils'
 
 export const userService = {
     register: async (userDTO) => {
+        const password =  await utils.hashPassword(userDTO.password); 
+
         var newUser = new userModel({
             fullname: userDTO.fullname,
             email: userDTO.email,
             username: userDTO.username,
-            password: userDTO.password,
+            password: password,
             profileimage: userDTO.profileimage
         });
 
@@ -18,17 +21,18 @@ export const userService = {
     login: (userDTO, cb) => {
         userModel.findOne({
             username: userDTO.username
-        }, function(err, user) {
+        }, async function(err, user) {
             if (err) {
                 return cb(err);
             }
             if (!user) {
                 return cb(null, false);
             }
-            if (user.password != userDTO.password) {
-                return cb(null, false);
+            const result = await utils.comparePassword(userDTO.password, user.password);
+            if(result) {
+                return cb(null, user);
             }
-            return cb(null, user);
+            return cb(null, false);
         });
     },
     

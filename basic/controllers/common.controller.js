@@ -9,11 +9,11 @@ const commonController = {
 
             //environment config check
             if(! usermail) {
-                console.err("mail.user is missing in env");
+                console.error("mail.user is missing in env");
                 return res.redirect('/');
             } 
             if(! userpass) {
-                console.err("mail.pass is missing in env");
+                console.error("mail.pass is missing in env");
                 return res.redirect('/');
             }
 
@@ -46,7 +46,7 @@ const commonController = {
             }
             res.redirect('/');
         } catch (err) {
-            console.err(err);
+            console.error(err);
             req.session.sessionFlash = {
                 type: 'error',
                 message: 'Something went wrong!!!'

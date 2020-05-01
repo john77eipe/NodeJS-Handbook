@@ -24,8 +24,8 @@ router.post('/register',
         check('email', 'Email is not valid').isEmail(),
         check('username', 'Username field is required').not().isEmpty(),
         check('password', 'Password field is required').not().isEmpty(),
-        check('password').isLength({ min: 3 }).withMessage('must be at least 3 chars long'),
-        check('password').matches(/\d/).withMessage('must contain a number'),
+        check('password').isLength({ min: 3 }).withMessage('Password must be at least 3 chars long'),
+        check('password').matches(/\d/).withMessage('Password must contain a number'),
         check('password2').custom((value, {req}) => { 
             //custom validator
             if(value!==req.body.password) {

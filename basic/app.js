@@ -93,11 +93,11 @@ app.use('/users', user_routes);
 
 // catch incorrect endpoint requests (404) and forward to error handler
 app.use(function (req, res, next) {
-	console.err("----------------------------");
-	console.err(req.url);
-	console.err(req.method);
-	console.err(req.body);
-	console.err("----------------------------");
+	console.error("----------------------------");
+	console.error(req.url);
+	console.error(req.method);
+	console.error(req.body);
+	console.error("----------------------------");
 	const err = new Error('Not Found');
 	err.status = 404;
 	next(err);

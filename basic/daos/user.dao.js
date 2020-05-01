@@ -34,10 +34,17 @@ userSchema.statics = {
         return this.find({
             $or: [ { username: username }, { email: email} ] 
         }).then( (content) => {
-            return {
-                isSuccess: false,
-                data: content
-            };
+            if(content.length>0) {
+                return {
+                    isSuccess: false,
+                    data: content
+                };
+            } else {
+                return {
+                    isSuccess: true,
+                    data: content
+                };
+            }
         })
         .catch(err => {
             console.log(err);

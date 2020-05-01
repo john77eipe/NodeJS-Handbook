@@ -1406,8 +1406,41 @@ Scope:
 
     eg: Mongoose save method
 
-    
+  - I didn't cover all calls with async only the ones I think is necessary
 
-  
+  - Passport deserialize and serialize can be made async as can be shown here: https://www.wlaurance.com/2018/09/async-await-passportjs-local-strategy but I didn't
 
-  
+
+
+## Release 0.0.9
+
+Code: https://github.com/john77eipe/NodeJSHandbook/releases/tag/Release_0.0.9
+
+Scope:
+
+- Optimize passport calls
+
+  We were hitting the database twice on every single API call to populate all the user's information in memory. But in practice, we rarely needed more than the userId in our backend code. So this time around, I've made the decision to stuff the name and email into the session object and avoid making multiple database trips on every single API call. 
+
+  Thanks to this idea from [here](https://www.airpair.com/express/posts/expressjs-and-passportjs-sessions-deep-dive#optimize-passportjs)
+
+- Throw error for registrations if existing email and/or username
+
+  Note that: I used statics instead of methods on Mongoose Model. Perhapes this is a good usecase of when to use statics vs methods.
+
+
+
+## Release 0.1.0
+
+Code: https://github.com/john77eipe/NodeJSHandbook/releases/tag/Release_0.1.0
+
+Scope:
+
+- Add support for password encryption and decryption
+
+  I used bcrypt library. But I couldn't get the ES6 imports to work for BCrypt. 
+
+- Added async util methods for the encryption and decryption
+
+
+
