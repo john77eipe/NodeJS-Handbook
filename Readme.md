@@ -361,7 +361,7 @@ There are three main parts in using passport.js:
 2. Configuring passport with at least one Strategy and setting up passport's serializeUser and deserializeUser methods.
 3. Specifying a route which uses the passport.authenticate middleware to actually authenticate a user.
 
-### AUTHENTICATION REQUEST FLOW
+### Authentication Request Flow
 
 With the tree parts configured as in the example, the following happens when a user tries the authenticate via the /login route:
 
@@ -376,7 +376,7 @@ With the tree parts configured as in the example, the following happens when a u
 The result is also attached to the request as `req.user`.
 Once done, our requestHandler is invoked.
 
-### SUBSEQUENT AUTHENTICATED REQUESTS FLOW
+### Subsequent Authenticated Requests Flow
 
 On subsequent request, the following occurs:
 
@@ -1430,9 +1430,9 @@ Scope:
 
 
 
-## Release 0.1.0
+## Release 0.0.10
 
-Code: https://github.com/john77eipe/NodeJSHandbook/releases/tag/Release_0.1.0
+Code: https://github.com/john77eipe/NodeJSHandbook/releases/tag/Release_0.0.10
 
 Scope:
 
@@ -1444,3 +1444,250 @@ Scope:
 
 
 
+### Design Patterns and Principles with MongoDB and Mongoose
+
+- Mongoose opens a pool of 5 reusable connections to a MongoDB database
+- This pool of connections is shared with all requests
+- Best practice is to open the connections when the application starts up and then leave it open until your application restarts/shutsdown. 
+- Mongoose will publish events based on the status of the connection. Note that we have used listeners to listen and log these events
+- Mongoose connections may not get disconnected for restarts or shutdown -> To monitor we need to listen to the Node.js process for an event called SIGINT. If you’re using nodemon to automatically restart the application, then you’ll also have to listen to a second event on the Node process called SIGUSR2
+- MongoDB Security
+  - To install it on a server on the default port without authentication is asking for trouble, especially when one can execute arbitrary JavaScript within a query (e.g. $where [as a vector for injection attacks](https://lockmedown.com/securing-node-js-mongodb-security-injection-attacks/)).
+  - MongoDB’s [security checklist](https://docs.mongodb.com/manual/administration/security-checklist/) gives good advice on reducing the risk of penetration of the network and of a data breach. It is easy to shrug and assume that a development server doesn’t need a high level of security. Not so: It is relevant to all MongoDB servers. In particular, unless there is a very good reason to use [mapReduce](https://docs.mongodb.com/manual/reference/command/mapReduce/#dbcmd.mapReduce), [group](https://docs.mongodb.com/manual/reference/command/group/#dbcmd.group), or [$where](https://docs.mongodb.com/manual/reference/operator/query/where/#op._S_where), you should [disable the use of arbitrary JavaScript by setting javascriptEnabled:false in the config file](https://lockmedown.com/securing-node-js-mongodb-security-injection-attacks/). Because the data files of standard MongoDB is not encrypted, It is also wise to [Run MongoDB with a Dedicated User](https://docs.mongodb.com/manual/administration/security-checklist/#run-mongodb-with-a-dedicated-user) with full access to the data files restricted to that user so as to use the operating systems own file-access controls.
+- Design a schema whenever possible
+  - MongoDB doesn’t enforce a schema. 
+  - If you really want to save documents with no consistent schema, you can store them very quickly and easily but retrieval [can be the very devil](https://www.compose.com/articles/mongodb-with-and-without-schemas/).
+  - The classic article ‘[6 Rules of Thumb for MongoDB Schema Design](https://www.mongodb.com/blog/post/6-rules-of-thumb-for-mongodb-schema-design-part-1)’ is well worth reading, and features like [Schema Explorer](https://studio3t.com/knowledge-base/articles/schema-explorer/) from third-party tools such as Studio 3T is well worth having for regular schema check-ups.
+- Changing default collation
+  - This can result in more frustration and wasted time than any other misconfiguration. MongoDB defaults to [using binary collation](https://jira.mongodb.org/browse/SERVER-1920). This is helpful to no cultures anywhere. Case-sensitive, accent-sensitive, binary collations 
+  - When you create a MongoDB database, use an [accent-insensitive, case-insensitive](https://weblogs.sqlteam.com/dang/archive/2009/07/26/Collation-Hell-Part-1.aspx) collation appropriate to the [languages and culture of the users](https://derickrethans.nl/mongodb-collation-revised.html) of the system. This makes searches through string data so much easier.
+- Keep document sizes small
+  - MongoDB is happy to accommodate large documents of up to 16 MB in collections, and [GridFS](https://docs.mongodb.com/manual/core/gridfs/#gridfs) is designed for large documents over 16MB. 
+  - Because large documents can be accommodated doesn’t mean that it is a good idea. 
+- Avoid creating documents with large arrays
+  - Documents can contain arrays. It is best to keep the number of array elements well below four figures. If the array is added to frequently, it will outgrow the containing document so that [its location on disk has to be moved](http://docs.mongodb.org/manual/core/data-model-operations/#document-growth), which in turn means [every index must be updated](http://docs.mongodb.org/manual/core/write-performance/#document-growth). A lot of index rewriting is going to take place when a document with a large array is re-indexed, because there is a separate [index entry for every array element](http://docs.mongodb.org/manual/core/index-multikey/). This re-indexing also happens when such a document is inserted or deleted.
+  - MongoDB has a ‘[padding factor](https://docs.mongodb.com/manual/core/mmapv1/#record-allocation-strategies)’ to provide space for documents to grow, in order to minimize this problem.
+  - You might think that you could get around this by not indexing arrays. Unfortunately, without the indexes, you can run into other problems. Because documents are scanned from start to end, it takes longer to find elements towards the end of an array, and [most operations dealing with such a document would be slow](http://grokbase.com/t/gg/mongodb-user/128r0h5gzw/inserting-into-300-000-size-embedded-array-is-slow-even-w-o-indexes).
+- Be aware about the order of aggregation 
+  - DBMSs have query optimiser, the queries that you write are explanations of what you want rather than how to get it.
+  - MongoDB gives you more control, but at a cost of convenience.
+  - For example, you need to make sure that the data is reduced as early as possible in the pipeline via match and ​ project, sorts happen only once the data is reduced, and that lookups happen in the order you intend.
+- Be careful when using fast writes
+  - Never set MongoDB for high-speed writes with low durability. This ‘file-and-forget’ mode makes writes appear to be fast because your command returns before actually writing anything. If the system crashes before the data is written to disk, it is lost and risks being in an inconsistent state.
+  - The MMAPv1 and WiredTiger storage engine both use journaling to prevent this.
+  - Journaling will ensure that the database is in a consistent state when it recovers and will save all the data up to the point that the journal is written.
+  - To be confident of your writes, make sure that journaling is [enabled (storage.journal.enabled) in the configuration file](https://docs.mongodb.com/manual/reference/configuration-options/#configuration-file) and the commit interval corresponds with what you can afford to lose.
+- Don't sort without an index
+  - In searches and aggregations, you will often want to sort your data. Hopefully, it is done in one of the final stages, after filtering the result, to reduce the amount of data being sorted. Even then, [you will need an index that can cover the sort](https://studio3t.com/knowledge-base/articles/mongodb-index-strategy/). Either a single or compound index will do this.
+  - When no suitable index is available, MongoDB is forced to do without. There is a [32MB memory limit on the combined size of all documents in the sort operation](https://docs.mongodb.org/manual/reference/limits/#Sort-Operations) and if MongoDB hits the limit, it will either produce an error or occasionally [just return an empty set of records](https://www.sitepoint.com/7-simple-speed-solutions-mongodb/).
+- Don't use Lookups without indexes
+  - Lookups perform a similar function to a SQL join. To perform well, they require an index on the key value used as the foreign key. This isn’t obvious because the use isn’t reported in explain(). 
+  - These indexes are in addition to the index recorded by explain() that is used by the match and ​sort pipeline operators when they occur at the beginning of the pipeline. [Indexes can now cover any stage](https://docs.mongodb.com/manual/core/aggregation-pipeline/#aggregation-pipeline-operators-and-performance) an aggregation pipeline.
+- Use multi-updates when needed
+  - The db.collection.update() method is used to modify part or all of an existing document or replace an existing document entirely, depending on the update parameter you provide.
+  - It is less obvious that it doesn’t do all the documents in a collection unless you set the multi parameter to update all documents that match the query criteria.
+- The order of keys in a hash object matters
+  - In JSON, an object consists of an unordered collection of zero or more name/value pairs, where a name is a string and a value is a string, number, boolean, null, object, or array.
+  - Unfortunately, BSON attaches significance to order when doing searches. [The order of keys within embedded objects matters in MongoDB](http://devblog.me/wtf-mongo), i.e. { firstname: "Phil", surname: "factor" } does not match { { surname: "factor", firstname: "Phil" }. This means that you have to preserve the order of name/value pairs in your documents if you want to be sure to find them.
+- Avoid using undefined
+  - The ‘undefined’ value has never been valid in JSON, according to the [official JSON standard](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf) (ECMA-404, Section 5), despite the fact that it is used in JavaScript. Furthermore, it is ‘deprecated’ in BSON and converted to $null which isn’t always a happy solution. [Avoid using ‘undefined’ in MongoDB](https://github.com/meteor/meteor/issues/1646#issuecomment-29682964).
+- Use sort() with limit()
+  - Often, when you are developing in MongoDB, it useful to just see a sample of the results that are returned from a query or aggregation. limit() serves this purpose, but it should never be in the final version of the code, unless you first use ​sort(). 
+  - This is because you can’t otherwise guarantee the order of the result and you won’t be able to reliably ‘page’ through data. You get different records in the top of the result depending on the way you’ve sorted it.
+
+
+
+References: https://www.infoq.com/articles/Starting-With-MongoDB/
+
+
+#### Mongoose terminologies
+
+- Mongoose schema resembles the data (synonymous to class in java)
+- Mongoose model objects are a compiled version of the schemas (synonymous to objects created from classes)
+- All data interactions in Mongoose goes through model
+- Schema contains `path (attribute) name: properties like data type`
+- Data types supported:
+  - String - Any string, UTF-8 encoded 
+  - Number - default support is enough for most cases 
+  - Date - Typically returned from MongoDB as an ISODate object 
+  - Boolean - True or false 
+  - Buffer - For binary information such as images 
+  - Mixed - Any data type 
+  - Array - Can either be an array of the same data type, or an array of nested sub-documents 
+  - ObjectId - For a unique ID in a path other than _id; typically used to reference _id paths in other documents 
+- Other properties commonly used are:
+  - default values
+  - required
+- Document embedding (subdocuments)
+  - is done using nested schema
+  - very much like a standard document
+  - they have there own schema and each is given a unique _id by MongoDB when created
+  - they can only be accessed as a path of that parent document
+
+
+Notes:
+
+- How to return **id** instead of the internal **_id** 
+
+  In Mongoose, you can use 'virtuals', which are essentially fake fields that Mongoose creates. They're not stored in the DB, they just get populated at run time:
+
+  ```js
+  // Duplicate the ID field.
+  Schema.virtual('id').get(function(){
+      return this._id.toHexString();
+  });
+  
+  // Ensure virtual fields are serialised.
+  Schema.set('toJSON', {
+      virtuals: true
+  });
+  ```
+
+  Any time toJSON is called on the Model you create from this Schema, it will include an 'id' field that matches the _id field Mongo generates. Likewise you can set the behaviour for toObject in the same way.
+  Latest versions of Mongoose supports this out of the box.
+
+  However, to **export** this field to **JSON**, it's still required to **enable** serialization of virtual fields:
+
+  ```js
+  Schema.set('toJSON', {
+      virtuals: true
+  });
+  ```
+
+  
+
+- A common gotcha with [Mongoose populate](https://mongoosejs.com/docs/populate.html) is that you can't filter by fields in the foreign collection. For example, suppose you have 2 models: `Book` and `Author`, and you want to filter books by the author's name.
+
+  ```javascript
+  // 2 models: Book and Author
+  const Book = mongoose.model('Book', Schema({
+    title: String,
+    author: {
+      type: mongoose.ObjectId,
+      ref: 'Author'
+    }
+  }));
+  const Author = mongoose.model('Author', Schema({
+    name: String
+  }));
+  
+  // Create books and authors
+  const [author1, author2] = await Author.create([
+    { name: 'Michael Crichton' },
+    { name: 'Ian Fleming' }
+  ]);
+  const books = await Book.create([
+    { title: 'Jurassic Park', author: author1._id },
+    { title: 'Casino Royale', author: author2._id }
+  ]);
+  
+  // Populate books and filter by author name.
+  const books = Book.find().populate({
+    path: 'author',
+    match: { name: 'Ian Fleming' }
+  });
+  
+  books.length; // 2
+  books[0].author; // null
+  books[1].author; // { name: 'Ian Fleming' }
+  ```
+
+  In the above example, even though the [populate `match`](http://thecodebarbarian.com/mongoose-5-5-static-hooks-and-populate-match-functions#populate-match-function) filters based on the author's name, Mongoose still returns all the books, including those whose `author.name` doesn't match. If `author.name` isn't `'Ian Fleming'`, the book's `author` property will be `null`.
+
+  That's because, under the hood, 
+
+  Mongoose translates `Book.find().populate('author')` into 2 queries:
+
+	1. `const books = await Book.find({})`
+
+	2. `Author.find({ _id: { $in: books.map(b => b.author) }, name: 'Ian Fleming' })`
+
+   So `populate()` finds all books first, and then finds the corresponding authors.
+
+   If you need to filter books by the author's name in a performant way, the right way is to store the author's name in the book document:
+
+   ```javascript
+   // 2 models: Book and Author
+   const Book = mongoose.model('Book', Schema({
+     title: String,
+     author: {
+       type: mongoose.ObjectId,
+       ref: 'Author'
+     },
+     authorName: String
+   }));
+   
+   const authorSchema = Schema({ name: String });
+   // Add middleware to update the dereferenced `authorName`
+   authorSchema.pre('save', async function() {
+     if (this.isModified('name')) {
+       await Book.updateMany({ authorId: this.author }, { authorName: this.name });
+     }
+   });
+   const Author = mongoose.model('Author', authorSchema);
+   ```
+
+   This way, you can filter and sort by the author's name without an extra `populate()`. 
+
+   The pattern of storing the author's name in the `bookSchema` and updating the book collection every time an author's name changes is called *dereferencing*. Dereferencing, or embedding data from one collection in another collection, is how you can run MongoDB at massive scale without caching solutions like [memcached](https://memcached.org/).
+
+   If you're building a reading app, odds are you will update author names infrequently, but filter and sort books by author name frequently. A handy mnemomic for this rule of thumb is to "store what you query for." Make the queries you execute most frequently fast, at the cost of making infrequent updates slightly slower.
+
+- Versus using lookup
+
+  [MongoDB 3.6 introduced a `$lookup` aggregation operator](http://thecodebarbarian.com/a-nodejs-perspective-on-mongodb-36-lookup-expr) that behaves similarly to a [left outer join](https://www.dofactory.com/sql/left-outer-join). In other words, even if you don't dereference the `author` property, you can use the aggregation framework and `$lookup` to sort books by their author name.
+
+  ```javascript
+  const [author1, author2] = await Author.create([
+    { name: 'Michael Crichton' },
+    { name: 'Ian Fleming' }
+  ]);
+  await Book.create([
+    { title: 'Jurassic Park', author: author1._id },
+    { title: 'Casino Royale', author: author2._id }
+  ]);
+  
+  const books = await Book.aggregate([
+    {
+      $lookup: {
+        from: 'Author',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'authorDoc'
+      }
+    },
+    {
+      $sort: {
+        'authorDoc.name': 1
+      }
+    }
+  ]);
+  
+  books[0].title; // 'Casino Royale'
+  books[1].title; // 'Jurassic Park'
+  ```
+
+  Why doesn't Mongoose populate use `$lookup`? The issue comes down to consistent performance. Because `$lookup` executes a separate lookup for every document coming into the `$lookup` stage, [`$lookup`'s performance degrades as `O(n^2)` in case of index misses](http://thecodebarbarian.com/slow-trains-in-mongodb-and-nodejs#break-up-one-slow-operation-into-many-fast-operations), which in turn can then cause a [slow train](http://thecodebarbarian.com/slow-trains-in-mongodb-and-nodejs).
+
+  On the other hand, Mongoose executes 1 query for each `populate()` call, which leads to better throughput, and only one collection scan in the event of an index miss.
+
+  If you manually update the database or you have a separate app that doesn't correctly update `authorName`, you might have a case where the author's name in the `Book` model doesn't line up with the `Author` model. While update anomalies like this are certainly possible, they are rare in production: the most likely causes are either a manual update to the database that bypasses the app, or a developer using a pattern that bypasses Mongoose middleware.
+
+  ```javascript
+  const authorSchema = Schema({ name: String });
+  // Add middleware to update the dereferenced `authorName`
+  authorSchema.pre('save', async function() {
+    if (this.isModified('name')) {
+      await Book.updateMany({ authorId: this.author }, { authorName: this.name });
+    }
+  });
+  const Author = mongoose.model('Author', authorSchema);
+  
+  // Won't trigger the 'save' middleware. You would need a separate `pre('updateOne')`
+  // hook to capture this case.
+  await Author.updateOne({}, { name: 'test' });
+  ```
+
+  If update anomalies occur, they're easy to fix with a migration. It's much easier to identify and fix update anomalies than widespread performance degradation.
+
+  Also, [sometimes data being "out of date" is a feature, not a bug](http://thecodebarbarian.com/managing-embedded-documents-with-monogram#updating-an-existing-document). 
