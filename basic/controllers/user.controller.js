@@ -50,7 +50,7 @@ const userController = {
                 type: 'error',
                 message: 'Something went wrong!!!'
             }
-            res.redirect('/error');
+            res.redirect('/');
         }
     },
     login: (req, res, next) => {

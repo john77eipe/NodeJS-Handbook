@@ -87,9 +87,11 @@ app.use(function(req, res, next) {
 // Loading routes
 import common_routes from './routes/common.route';
 import user_routes from './routes/user.route';
+import blog_routes from './routes/blog.route';
 
 app.use('/', common_routes);
 app.use('/users', user_routes);
+app.use('/blogs', blog_routes);
 
 // catch incorrect endpoint requests (404) and forward to error handler
 app.use(function (req, res, next) {

@@ -8,6 +8,7 @@ router.get('/', function(req, res) {
 });
 
 router.get('/about', function(req, res) {
+    console.log("hellooo");
     res.render('about', {title:'About'});
 });
 

@@ -15,7 +15,7 @@ export const userSchema = new mongoose.Schema({
 	fullname: {
 		type: String
 	},
-	profileimage:{
+	profileimage: {
 		type: String
 	},
 	lastaccess: {
@@ -23,3 +23,15 @@ export const userSchema = new mongoose.Schema({
 		default: Date.now
 	}
 });
+
+userSchema.path('username').validate(
+	function (username) {
+		return username.length;
+	}, 
+	'Name cannot be blank');
+
+userSchema.path('email').validate(
+	function (email) {
+		return email.length;
+	}, 
+	'Email cannot be blank');

@@ -5,7 +5,7 @@ export const userService = {
     register: async (userDTO) => {
         const password =  await utils.hashPassword(userDTO.password); 
 
-        var newUser = new userModel({
+        let newUser = new userModel({
             fullname: userDTO.fullname,
             email: userDTO.email,
             username: userDTO.username,

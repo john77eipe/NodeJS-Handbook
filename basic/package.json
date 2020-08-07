@@ -8,7 +8,10 @@
         "server": "node ./dist-server/bin/www",
         "transpile": "babel ./ --ignore ./node_modules --out-dir dist-server",
         "clean": "rimraf dist-server",
-        "start": "babel-node ./bin/www"
+        "start": "nodemon ./bin/www",
+        "prestart": "babel ./ --ignore ./node_modules --out-dir dist-server",
+        "dev": "nodemon --exec babel-node ./bin/www.js",
+        "debug": "babel-node debug ./bin/www.js"
     },
     "author": "John Eipe",
     "license": "ISC",
@@ -33,11 +36,13 @@
         "morgan": "1.9.1",
         "multer": "1.4.2",
         "nodemailer": "6.4.2",
-        "nodemon": "^2.0.3",
         "passport": "0.4.1",
         "passport-http": "0.3.0",
         "passport-local": "1.0.0",
         "serve-favicon": "2.5.0",
         "uuid": "^7.0.2"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.4"
     }
 }

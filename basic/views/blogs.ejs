@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('partials/head'); %>
+</head>
+
+<body>
+    <%- include('partials/nav'); %>
+    <main role="main">
+        <%- include('partials/jumbotron'); %>
+        <div class="container">
+            <h2 class="page-header">Blogs</h2>
+            <p>List of blogs</p>
+            <% if (blogs.length > 0){ %> 
+                <%  for (let blog of blogs){ %>
+                    <a href="blog/<%=blog._id%>"><%= blog.title %> by <%= blog.user.username %> </a>
+                <% } %>
+            <% } %>   
+        </div>
+        <!-- /container-->
+    </main><br>
+    <%- include('partials/footer'); %>
+</body>
+
+</html>
