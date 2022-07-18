@@ -24,11 +24,16 @@ We will build a simple nodejs application step by step.
 
 Each release is marked with release tags. Features added in each release is mentioned below along with  concepts and features of javascript/nodejs/expressjs that's explored as part of this project development.
 
+> Note that only advanced concepts of express and nodejs is explained in this readme. This is not a starters document for expressjs or nodejs.
+
 ## Developer Notes
 
+### What is middleware in express ?
+
 What are middleware in express? What does `app.use` do?
-http://expressjs.com/en/guide/writing-middleware.html
-https://stackoverflow.com/questions/11321635/nodejs-express-what-is-app-use
+Explanation:
+- http://expressjs.com/en/guide/writing-middleware.html
+- https://stackoverflow.com/questions/11321635/nodejs-express-what-is-app-use
 
 
 
