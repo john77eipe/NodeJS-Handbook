@@ -18,7 +18,13 @@ Update your package.json
 
 `npm install`
 
-Notes:
+## Agenda
+
+We will build a simple nodejs application step by step. 
+
+Each release is marked with release tags. Features added in each release is mentioned below along with  concepts and features of javascript/nodejs/expressjs that's explored as part of this project development.
+
+## Developer Notes
 
 What are middleware in express? What does `app.use` do?
 http://expressjs.com/en/guide/writing-middleware.html
